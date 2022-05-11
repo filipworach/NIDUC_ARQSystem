@@ -4,59 +4,88 @@ public class Channel {
     protected char[] data;
     protected int errorProb;
 
-    public int getIntData(){
-        return Integer.parseInt(data.toString(),2);
+    public int getIntData() {
+        return Integer.parseInt(data.toString(), 2);
     }
-    public String getStringData(){
+
+    public String getStringData() {
         return data.toString();
     }
 
     protected void generateHammingCode() {
         int temp = 0;
-        while (Math.pow(2,temp) < data.length + temp + 1) {
+        while (Math.pow(2, temp) < data.length + temp) {
             temp++;
         }
-        char[] temporaryData = new char[data.length + temp];
+        char[] temporaryData = new char[data.length + temp - 1];
         int index = 0;
         int positionOfRedundantBit = temp - 1;
-        for (int i = 0; i < data.length + temp; i++) {
-            if(data.length + temp - i  == Math.pow(2,positionOfRedundantBit)) positionOfRedundantBit--;
+        for (int i = 0; i < data.length + temp - 1; i++) {
+            if (temporaryData.length - i - 1 == Math.pow(2, positionOfRedundantBit) - 1) positionOfRedundantBit--;
             else {
                 temporaryData[i] = data[index];
                 index++;
             }
         }
         positionOfRedundantBit = temp - 1;
-        for (int i = 0; i < temp; i++) {
-            int counter = 0;
-            //char[] binaryValues = String.valueOf(Double.doubleToLongBits(Math.pow(2,i))).toCharArray();
-            for (int j = 0; j < data.length + temp; j++) {
-                char[] binaryValues = Integer.toBinaryString(data.length + temp - j).toCharArray();
-                if(binaryValues.length != temp) {
-                    char[] t = new char[temp];
-                    int whichPosition = 0;
-                    for (int k = 0; k < temp; k++) {
-                        if(k < temp - binaryValues.length) t[k] ='0';
-                        else {
-                            t[k] = binaryValues[whichPosition];
-                            whichPosition++;
-                        }
+//        for (int i = 0; i < temp; i++) {
+//            int counter = 0;
+//            //char[] binaryValues = String.valueOf(Double.doubleToLongBits(Math.pow(2,i))).toCharArray();
+//            for (int j = 0; j < data.length + temp - 1; j++) {
+//                char[] binaryValues = Integer.toBinaryString(data.length + temp - j).toCharArray();
+//                if(binaryValues.length != temp) {
+//                    char[] t = new char[temp];
+//                    int whichPosition = 0;
+//                    for (int k = 0; k < temp; k++) {
+//                        if(k < temp - binaryValues.length) t[k] ='0';
+//                        else {
+//                            t[k] = binaryValues[whichPosition];
+//                            whichPosition++;
+//                        }
+//                    }
+//                    binaryValues = t;
+//                }
+//                if (binaryValues[i] == '1') {
+//                    if (temporaryData[j] == '1') counter++;
+//                }
+//            }
+        //nowa wersja proba
+        short tableWithPositions[] = {1, 2, 4, 8, 16};
+        for (int i = 0; i < 5; i++) {
+            int temporary = temporaryData.length - tableWithPositions[i];
+            boolean firstLoop = true;
+            int howMany = 0;
+            while (temporary >= 0) {
+                for (int j = 0; j < tableWithPositions[i]; j++) {
+                    if (!firstLoop) {
+                        if (temporaryData[temporary] == '1') howMany++;
+                        temporary--;
+                    } else {
+                        firstLoop = false;
+                        temporary--;
                     }
-                    binaryValues = t;
+
+
                 }
-                if (binaryValues[i] == '1') {
-                    if (temporaryData[j] == '1') counter++;
-                }
+                temporary = temporary - tableWithPositions[i];
             }
-            if (counter%2==0) temporaryData[(int) (data.length + temp - Math.pow(2,positionOfRedundantBit))] = '0';
-            else temporaryData[(int) (data.length + temp - Math.pow(2,positionOfRedundantBit))] = '1';
-            System.out.println("Pozycja bitu w kodzie Hamminga: " + (data.length + temp - Math.pow(2,positionOfRedundantBit)));
-            positionOfRedundantBit--;
+            if (howMany % 2 == 0)
+                temporaryData[temporaryData.length - tableWithPositions[i]] = '0';
+            else temporaryData[temporaryData.length - tableWithPositions[i]] = '1';
+
 
         }
-        data = temporaryData;
+        //tutaj koniec
+//            if (counter%2==0) temporaryData[(int) (data.length + temp - Math.pow(2,positionOfRedundantBit) - 1)] = '0';
+//            else temporaryData[(int) (data.length + temp - Math.pow(2,positionOfRedundantBit) - 1)] = '1';
+//            System.out.println("Pozycja bitu w kodzie Hamminga: " + (data.length + temp - Math.pow(2,positionOfRedundantBit)));
+//            positionOfRedundantBit--;
+
+
+
+    data =temporaryData;
         System.out.println(temporaryData);
-    }
+}
 
     protected void generateParityBit() {
         short temp = 0;
