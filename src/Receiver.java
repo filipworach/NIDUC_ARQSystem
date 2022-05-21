@@ -45,7 +45,7 @@ public class Receiver {
                 }
                 int pos = 0;
                 if(isError) pos = Calculator.whichPosition(position);
-                System.out.println(message.length - pos - 1);
+                System.out.println(pos);
                 break;
         }
     }

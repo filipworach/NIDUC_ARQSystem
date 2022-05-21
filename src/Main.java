@@ -10,6 +10,7 @@ public class Main {
         System.out.println(bst.getData());
         dat = bst.getData();
         dat[28] = '0';
+        System.out.println(dat);
         receiver.setMessage(dat);
         receiver.decode();
 //        Scanner scanner = new Scanner(System.in);
