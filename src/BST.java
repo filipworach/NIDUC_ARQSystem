@@ -45,10 +45,7 @@ public class BST extends Channel{
 
     private boolean isError() {
         Random random = new Random();
-        if (errorProb >= random.nextInt(100)) {
-            return true;
-        }
-        return false;
+        return errorProb >= random.nextInt(100);
     }
 
     public BST(char[] data, int errorProb) {

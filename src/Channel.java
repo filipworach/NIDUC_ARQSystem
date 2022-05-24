@@ -92,14 +92,28 @@ public class Channel {
     }
 
     public void generateCRCCode() {
-        int divisor = 263;
-        divisor = divisor << 24;
-        int intData = Integer.parseInt(data.toString(),2);
-        intData = intData << 8;
-        for(int i = 0;i<24;i++){
-            if((intData & (1<<(32-i)))==1){
+        char[] dataChar = this.data;
+        int divisor = 7;   // x^2 + x^1 + 1
+        divisor = divisor << 23;
+        int data = Integer.parseInt(String.valueOf(dataChar), 2) ;//4464711;
+        data = data << 8;
+
+        int firstData =data;
+        int pow = 1073741824;
+        pow = pow << 1;
+        for (int i = 0; i < 23; i++) {
+
+            if ((data & (1 << (31 - i))) == pow) {
+                data = data ^ divisor;
             }
+            pow = (int) Math.pow(2, 31 - i - 1);
+            divisor = divisor >> 1;
+            divisor = divisor & 2147483647;
         }
+        int crc = data & 255;
+        int finalData = firstData | crc;
+
+        this.data = Integer.toBinaryString(finalData).toCharArray();
     }
 
     public void generateError(){};
