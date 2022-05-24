@@ -3,6 +3,7 @@ import java.util.Arrays;
 public class Channel {
     protected char[] data;
     protected int errorProb;
+    protected boolean isErrorGenerated = false;
 
     public int getIntData() {
         return Integer.parseInt(data.toString(), 2);
@@ -17,7 +18,7 @@ public class Channel {
         while (Math.pow(2, temp) < data.length + temp) {
             temp++;
         }
-        char[] temporaryData = new char[data.length + temp - 1];
+        char[] temporaryData = new char[data.length + temp];
         int index = 0;
         int positionOfRedundantBit = temp - 1;
         for (int i = 0; i < data.length + temp - 1; i++) {
@@ -84,7 +85,6 @@ public class Channel {
 
 
     data =temporaryData;
-        System.out.println(temporaryData);
 }
 
     protected void generateParityBit() {

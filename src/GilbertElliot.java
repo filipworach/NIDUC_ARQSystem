@@ -27,6 +27,7 @@ public class GilbertElliot extends Channel{
         for (int i = 0; i < data.length; i++) {
             if (burst) {
                 if (isError(errorProbHigher)) {
+                    isErrorGenerated=true;
                     if (data[i] == '1')
                         data[i] = '0';
                     else
@@ -39,6 +40,7 @@ public class GilbertElliot extends Channel{
             else {
                 if (isError(errorProb)) {
                     burst = true;
+                    isErrorGenerated=true;
                     if (data[i] == '1') {
                         data[i] = '0';
                     } else {

@@ -10,7 +10,11 @@ public class Receiver {
         this.message = message;
     }
 
-    public void decode() {
+    public char[] getMessage() {
+        return message;
+    }
+
+    public boolean decode() {
         short tableWithPositions[] = {1, 2, 4, 8, 16};
         switch (typeOfCode) {
             case "Hamming":
@@ -29,24 +33,31 @@ public class Receiver {
                                 firstLoop = false;
                                 temp--;
                             }
-
-
                         }
                         temp = temp - tableWithPositions[i];
                     }
                     if(message[message.length - tableWithPositions[i]] == '1') howMany++;
                     if (howMany % 2 == 0) {
+                        position[5 - i - 1] = 0;
+
+                    }
+                    else {
                         position[5 - i - 1] = 1;
                         if(message[message.length - tableWithPositions[i]] == '1') isError = true;
                     }
-                    else position[5 - i - 1] = 0;
 
 
                 }
-                int pos = 0;
-                if(isError) pos = Calculator.whichPosition(position);
-                System.out.println(pos);
+
+                if(isError) {
+                    int pos = 0;
+                    pos = message.length - Calculator.whichPosition(position) - 1;
+                    if(message[pos] == '1') message[pos] = '0';
+                    else if(message[pos] == '0') message[pos] = '1';
+                    return true;
+                }
                 break;
         }
+        return false;
     }
 }
