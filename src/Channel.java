@@ -129,11 +129,31 @@ public class Channel {
         intData = intData << 8;
         for(int i = 0;i<24;i++){
             if((intData & (1<<(32-i)))==1){
-
             }
-
         }
+    }
 
+    public void generateError(){};
 
+    public void test(char [] dat, Receiver receiver, int howManyIterations) {
+        int howManyCorrectedMessages = 0;
+        int howManyWrongMessages = 0;
+        int howManyCorrectMessages = 0;
+        for (int i = 0; i < howManyIterations; i++) {
+            dat = Integer.toBinaryString((int) Math.floor(Math.random() * 67108864)).toCharArray();
+            dat = Calculator.writeOnChosenPositions(dat, 26);
+            this.setData(dat);
+            this.generateHammingCode();
+            dat = Arrays.copyOf(this.getData(), 31);
+            this.generateError();
+            receiver.setMessage(Arrays.copyOf(this.getData(), 31));
+            boolean isError = receiver.decode();
+            if (this.isErrorGenerated && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
+            else if (this.isErrorGenerated) howManyWrongMessages++;
+            else if (!this.isErrorGenerated) howManyCorrectMessages++;
+        }
+        System.out.println("Corrected: " + howManyCorrectedMessages);
+        System.out.println("Wrong:" + howManyWrongMessages);
+        System.out.println("Correct: " + howManyCorrectMessages);
     }
 }
