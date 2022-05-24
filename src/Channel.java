@@ -28,29 +28,6 @@ public class Channel {
                 index++;
             }
         }
-        positionOfRedundantBit = temp - 1;
-//        for (int i = 0; i < temp; i++) {
-//            int counter = 0;
-//            //char[] binaryValues = String.valueOf(Double.doubleToLongBits(Math.pow(2,i))).toCharArray();
-//            for (int j = 0; j < data.length + temp - 1; j++) {
-//                char[] binaryValues = Integer.toBinaryString(data.length + temp - j).toCharArray();
-//                if(binaryValues.length != temp) {
-//                    char[] t = new char[temp];
-//                    int whichPosition = 0;
-//                    for (int k = 0; k < temp; k++) {
-//                        if(k < temp - binaryValues.length) t[k] ='0';
-//                        else {
-//                            t[k] = binaryValues[whichPosition];
-//                            whichPosition++;
-//                        }
-//                    }
-//                    binaryValues = t;
-//                }
-//                if (binaryValues[i] == '1') {
-//                    if (temporaryData[j] == '1') counter++;
-//                }
-//            }
-        //nowa wersja proba
         short tableWithPositions[] = {1, 2, 4, 8, 16};
         for (int i = 0; i < 5; i++) {
             int temporary = temporaryData.length - tableWithPositions[i];
@@ -76,14 +53,6 @@ public class Channel {
 
 
         }
-        //tutaj koniec
-//            if (counter%2==0) temporaryData[(int) (data.length + temp - Math.pow(2,positionOfRedundantBit) - 1)] = '0';
-//            else temporaryData[(int) (data.length + temp - Math.pow(2,positionOfRedundantBit) - 1)] = '1';
-//            System.out.println("Pozycja bitu w kodzie Hamminga: " + (data.length + temp - Math.pow(2,positionOfRedundantBit)));
-//            positionOfRedundantBit--;
-
-
-
     data =temporaryData;
 }
 
