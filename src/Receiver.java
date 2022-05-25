@@ -66,6 +66,34 @@ public class Receiver {
         }
         //return false;
     }
+    private boolean crc() {
+        //message = new char[3];
+        int pow, divisor, data;
+        if(message[0]=='0'){
+            data = Integer.parseInt(String.valueOf(this.message), 2);
+        }else{
+            message[0]='0';
+            data = Integer.parseInt(String.valueOf(this.message), 2);
+            data = data & (1<<32);
+        }
+        //data = finalData; //Integer.parseInt("1000100001000000100011101010110", 2);
+        //System.out.println("final Data: " + Integer.toBinaryString(data));
+        pow = 1073741824;
+        pow = pow << 1;
+        divisor = 7;
+        divisor = divisor << 23;
+        for (int i = 0; i < 23; i++) {
+
+            if ((data & (1 << (31 - i))) == pow) {
+                data = data ^ divisor;
+            }
+            pow = (int) Math.pow(2, 31 - i - 1);
+            divisor = divisor >> 1;
+            divisor = divisor & 2147483647;
+        }
+        divisor = data & 4095;
+        return divisor == 0;
+    }
 
     private boolean parityBit() {
         int howManyOnes = 0;
@@ -84,6 +112,8 @@ public class Receiver {
                 if (parityBit()) return true;
             case "doubledData":
                 if(doubledData()) return true;
+            case "crc" :
+                if(crc()) return true;
             default: return false;
         }
     }

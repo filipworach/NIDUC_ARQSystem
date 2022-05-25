@@ -93,17 +93,15 @@ public class Channel {
     }
 
     public void generateCRCCode() {
-        char[] dataChar = this.data;
         int divisor = 7;   // x^2 + x^1 + 1
         divisor = divisor << 23;
-        int data = Integer.parseInt(String.valueOf(dataChar), 2);//4464711;
+        int data = Integer.parseInt(String.valueOf(this.data), 2);//4464711;
         data = data << 8;
 
         int firstData = data;
         int pow = 1073741824;
         pow = pow << 1;
         for (int i = 0; i < 23; i++) {
-
             if ((data & (1 << (31 - i))) == pow) {
                 data = data ^ divisor;
             }
@@ -115,6 +113,14 @@ public class Channel {
         int finalData = firstData | crc;
 
         this.data = Integer.toBinaryString(finalData).toCharArray();
+        int lenght = this.data.length;
+        if(lenght<32){
+            this.data = Arrays.copyOf(this.getData(), 32);
+            for(int i =lenght; i<32 ;i++){
+                this.data[i] = '0';
+            }
+        }
+
     }
 
     public void generateError() {
@@ -158,6 +164,7 @@ public class Channel {
                 else if (this.isErrorGenerated) howManyWrongMessages++;
                 else if (!this.isErrorGenerated) howManyCorrectMessages++;
             } else if (Objects.equals(receiver.getTypeOfCode(), "parityBit")) {
+
                 dat = Integer.toBinaryString((int) Math.floor(Math.random() * 2147483647)).toCharArray();
                 dat = Calculator.writeOnChosenPositions(dat, 31);
                 this.setData(dat);
@@ -169,7 +176,9 @@ public class Channel {
                 if (this.isErrorGenerated && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
                 else if (this.isErrorGenerated) howManyWrongMessages++;
                 else if (!this.isErrorGenerated) howManyCorrectMessages++;
+
             } else if (Objects.equals(receiver.getTypeOfCode(), "doubledData")) {
+
                 dat = Integer.toBinaryString((int) Math.floor(Math.random() * 65535)).toCharArray();
                 this.setData(dat);
                 this.generateDoubledData();
@@ -180,6 +189,20 @@ public class Channel {
                 if (this.isErrorGenerated && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
                 else if (this.isErrorGenerated) howManyWrongMessages++;
                 else if (!this.isErrorGenerated) howManyCorrectMessages++;
+
+            } else if (Objects.equals(receiver.getTypeOfCode(), "crc")) {
+                dat = Integer.toBinaryString((int) Math.floor(Math.random() * 65535)).toCharArray();
+                this.setData(dat);
+                this.generateCRCCode();
+                dat = Arrays.copyOf(this.getData(), 32);
+                this.generateError();
+                receiver.setMessage(Arrays.copyOf(this.getData(), 31));
+                if (receiver.decode()) retransmit(5, receiver, dat);
+                if (this.isErrorGenerated && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
+                else if (this.isErrorGenerated) howManyWrongMessages++;
+                else if (!this.isErrorGenerated) howManyCorrectMessages++;
+
+
             }
         }
         System.out.println("Corrected: " + howManyCorrectedMessages);
