@@ -25,7 +25,6 @@ public class Receiver {
     }
 
     private void hamming() {
-        message = new char[31];
         short[] tableWithPositions = {1, 2, 4, 8, 16};
         int[] position = new int[5];
         boolean isError = false;
