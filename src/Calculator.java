@@ -12,12 +12,14 @@ public class Calculator {
         int howManyZeros = position - tabLength;
         char[] newData = new char[tabLength + howManyZeros];
 
-        for (int i = 0; i < howManyZeros; i++) {
-            newData[i] = '0';
-        }
-        for(int i = howManyZeros; i < newData.length; i++) {
-            newData[i] = tab[i-howManyZeros];
-        }
-        return newData;
+        if (howManyZeros > 0) {
+            for (int i = 0; i < howManyZeros; i++) {
+                newData[i] = '0';
+            }
+            for (int i = howManyZeros; i < newData.length; i++) {
+                newData[i] = tab[i - howManyZeros];
+            }
+            return newData;
+        } else return tab;
     }
 }

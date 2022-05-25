@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Objects;
 
 public class Channel {
     protected char[] data;
@@ -53,8 +54,8 @@ public class Channel {
 
 
         }
-    data =temporaryData;
-}
+        data = temporaryData;
+    }
 
     protected void generateParityBit() {
         short temp = 0;
@@ -95,10 +96,10 @@ public class Channel {
         char[] dataChar = this.data;
         int divisor = 7;   // x^2 + x^1 + 1
         divisor = divisor << 23;
-        int data = Integer.parseInt(String.valueOf(dataChar), 2) ;//4464711;
+        int data = Integer.parseInt(String.valueOf(dataChar), 2);//4464711;
         data = data << 8;
 
-        int firstData =data;
+        int firstData = data;
         int pow = 1073741824;
         pow = pow << 1;
         for (int i = 0; i < 23; i++) {
@@ -116,27 +117,75 @@ public class Channel {
         this.data = Integer.toBinaryString(finalData).toCharArray();
     }
 
-    public void generateError(){};
+    public void generateError() {
 
-    public void test(char [] dat, Receiver receiver, int howManyIterations) {
+    }
+
+    public void generateDoubledData() {
+        char[] temp = Calculator.writeOnChosenPositions(data, 16);
+        char[] array = new char[32];
+
+        for (int i = 0; i < 32; i++) {
+            array[i] = temp[i / 2];
+        }
+        data = array;
+    }
+
+    private void retransmit(int howManyTries, Receiver receiver, char[] dat) {
+        for (int i = 0; i < howManyTries; i++) {
+            this.setData(dat);
+            this.generateError();
+            receiver.setMessage(Arrays.copyOf(this.getData(), this.getData().length));
+            if (!receiver.decode()) break;
+        }
+    }
+
+    public void test(char[] dat, Receiver receiver, int howManyIterations) {
         int howManyCorrectedMessages = 0;
         int howManyWrongMessages = 0;
         int howManyCorrectMessages = 0;
         for (int i = 0; i < howManyIterations; i++) {
-            dat = Integer.toBinaryString((int) Math.floor(Math.random() * 67108864)).toCharArray();
-            dat = Calculator.writeOnChosenPositions(dat, 26);
-            this.setData(dat);
-            this.generateHammingCode();
-            dat = Arrays.copyOf(this.getData(), 31);
-            this.generateError();
-            receiver.setMessage(Arrays.copyOf(this.getData(), 31));
-            boolean isError = receiver.decode();
-            if (this.isErrorGenerated && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
-            else if (this.isErrorGenerated) howManyWrongMessages++;
-            else if (!this.isErrorGenerated) howManyCorrectMessages++;
+            if (Objects.equals(receiver.getTypeOfCode(), "Hamming")) {
+                dat = Integer.toBinaryString((int) Math.floor(Math.random() * 67108864)).toCharArray();
+                dat = Calculator.writeOnChosenPositions(dat, 26);
+                this.setData(dat);
+                this.generateHammingCode();
+                dat = Arrays.copyOf(this.getData(), 31);
+                this.generateError();
+                receiver.setMessage(Arrays.copyOf(this.getData(), 31));
+                receiver.decode();
+                if (this.isErrorGenerated && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
+                else if (this.isErrorGenerated) howManyWrongMessages++;
+                else if (!this.isErrorGenerated) howManyCorrectMessages++;
+            } else if (Objects.equals(receiver.getTypeOfCode(), "parityBit")) {
+                dat = Integer.toBinaryString((int) Math.floor(Math.random() * 2147483647)).toCharArray();
+                dat = Calculator.writeOnChosenPositions(dat, 31);
+                this.setData(dat);
+                this.generateParityBit();
+                dat = Arrays.copyOf(this.getData(), 32);
+                this.generateError();
+                receiver.setMessage(Arrays.copyOf(this.getData(), 31));
+                if (receiver.decode()) retransmit(5, receiver, dat);
+                if (this.isErrorGenerated && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
+                else if (this.isErrorGenerated) howManyWrongMessages++;
+                else if (!this.isErrorGenerated) howManyCorrectMessages++;
+            } else if (Objects.equals(receiver.getTypeOfCode(), "doubledData")) {
+                dat = Integer.toBinaryString((int) Math.floor(Math.random() * 65535)).toCharArray();
+                this.setData(dat);
+                this.generateDoubledData();
+                dat = Arrays.copyOf(this.getData(), 32);
+                this.generateError();
+                receiver.setMessage(Arrays.copyOf(this.getData(), 31));
+                if (receiver.decode()) retransmit(5, receiver, dat);
+                if (this.isErrorGenerated && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
+                else if (this.isErrorGenerated) howManyWrongMessages++;
+                else if (!this.isErrorGenerated) howManyCorrectMessages++;
+            }
         }
         System.out.println("Corrected: " + howManyCorrectedMessages);
         System.out.println("Wrong:" + howManyWrongMessages);
         System.out.println("Correct: " + howManyCorrectMessages);
+        System.out.println();
     }
+
 }
