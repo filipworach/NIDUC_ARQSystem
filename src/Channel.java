@@ -113,10 +113,10 @@ public class Channel {
         int finalData = firstData | crc;
 
         this.data = Integer.toBinaryString(finalData).toCharArray();
-        int lenght = this.data.length;
-        if(lenght<32){
+        int length = this.data.length;
+        if(length<32){
             this.data = Arrays.copyOf(this.getData(), 32);
-            for(int i =lenght; i<32 ;i++){
+            for(int i =length; i<32 ;i++){
                 this.data[i] = '0';
             }
         }
@@ -181,8 +181,8 @@ public class Channel {
                 dat = Arrays.copyOf(this.getData(), 32);
                 this.generateError();
                 receiver.setMessage(Arrays.copyOf(this.getData(), 31));
-                boolean error = receiver.decode();
-                if (error) {
+                boolean error = this.isErrorGenerated;
+                if (receiver.decode()) {
                     howManyRetransmissionsInOneLoop = retransmit(5, receiver, dat);
                     howManyRetransmissions += howManyRetransmissionsInOneLoop;
                     if(howManyRetransmissionsInOneLoop != 0)divider++;
@@ -199,8 +199,8 @@ public class Channel {
                 dat = Arrays.copyOf(this.getData(), 32);
                 this.generateError();
                 receiver.setMessage(Arrays.copyOf(this.getData(), 31));
-                boolean error = receiver.decode();
-                if (error) {
+                boolean error = this.isErrorGenerated;
+                if (receiver.decode()) {
                     howManyRetransmissionsInOneLoop = retransmit(5, receiver, dat);
                     howManyRetransmissions += howManyRetransmissionsInOneLoop;
                     if(howManyRetransmissionsInOneLoop != 0)divider++;
@@ -216,8 +216,9 @@ public class Channel {
                 dat = Arrays.copyOf(this.getData(), 32);
                 this.generateError();
                 receiver.setMessage(Arrays.copyOf(this.getData(), 31));
-                boolean error = receiver.decode();
-                if (error) {
+
+                boolean error = this.isErrorGenerated;
+                if (receiver.decode()) {
                     howManyRetransmissionsInOneLoop = retransmit(5, receiver, dat);
                     howManyRetransmissions += howManyRetransmissionsInOneLoop;
                     if(howManyRetransmissionsInOneLoop != 0)divider++;

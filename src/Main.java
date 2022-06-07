@@ -3,15 +3,17 @@ public class Main {
 
         char[] dat = new char[0];
 
-        BST bst = new BST(dat, 20);
-
-        System.out.println("BSC/Hamming Code:");
-        Receiver receiver = new Receiver("Hamming");
-        bst.test(dat, receiver, 10000);
+        BST bst = new BST(dat, 1);
+        Receiver receiver = new Receiver("");
 
         System.out.println("BSC/CRC code:");
         receiver.setTypeOfCode("crc");
         bst.test(dat, receiver, 10000);
+
+        System.out.println("BSC/Hamming Code:");
+        receiver.setTypeOfCode("Hamming");
+        bst.test(dat, receiver, 10000);
+
 
 
         System.out.println("BSC/Parity bit:");
