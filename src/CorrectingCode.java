@@ -112,7 +112,9 @@ public enum CorrectingCode {
     };
 
     char[] code(char data[]) {
-
+        return null;
+    }
+    char[] deCode(char data[]) {
         return null;
     }
 
