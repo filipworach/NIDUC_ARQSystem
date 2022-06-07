@@ -4,6 +4,8 @@ import java.util.Objects;
 public class Channel {
     protected char[] data;
     protected int errorProb;
+
+    protected CorrectingCode correctingCode;
     protected boolean isErrorGenerated = false;
 
     public int getIntData() {
@@ -159,8 +161,9 @@ public class Channel {
         int howManyRetransmissions = 0;
         int howManyRetransmissionsInOneLoop = 0;
         int divider = 0;
+
         for (int i = 0; i < howManyIterations; i++) {
-            if (Objects.equals(receiver.getTypeOfCode(), "Hamming")) {
+            if ( Objects.equals(receiver.getTypeOfCode(), "Hamming") ) {
                 dat = Integer.toBinaryString((int) Math.floor(Math.random() * 67108864)).toCharArray();
                 dat = Calculator.writeOnChosenPositions(dat, 26);
                 this.setData(dat);

@@ -2,9 +2,10 @@ import java.util.Objects;
 
 public class Receiver {
     private char[] message;
-    private String typeOfCode;
+    //private String typeOfCode;
+    protected CorrectingCode typeOfCode;
 
-    public Receiver(String typeOfCode) {
+    public Receiver(CorrectingCode typeOfCode) {
         this.typeOfCode = typeOfCode;
     }
 
@@ -16,11 +17,11 @@ public class Receiver {
         return message;
     }
 
-    public void setTypeOfCode(String typeOfCode) {
+    public void setTypeOfCode(CorrectingCode typeOfCode) {
         this.typeOfCode = typeOfCode;
     }
 
-    public String getTypeOfCode() {
+    public CorrectingCode getTypeOfCode() {
         return typeOfCode;
     }
 
@@ -66,7 +67,6 @@ public class Receiver {
         //return false;
     }
     private boolean crc() {
-        //message = new char[3];
         int pow, divisor, data;
         if(message[0]=='0'){
             data = Integer.parseInt(String.valueOf(this.message), 2);
@@ -103,18 +103,7 @@ public class Receiver {
     }
 
     public boolean decode() {
-        switch (typeOfCode) {
-            case "Hamming":
-                hamming();
-                return false;
-            case "parityBit":
-                if (parityBit()) return true;
-            case "doubledData":
-                if(doubledData()) return true;
-            case "crc" :
-                if(crc()) return true;
-            default: return false;
-        }
+        typeOfCode.deCode(this.message);
     }
 
     private boolean doubledData() {
