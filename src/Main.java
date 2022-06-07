@@ -3,7 +3,7 @@ public class Main {
 
         char[] dat = new char[0];
 
-        BST bst = new BST(dat, 10);
+        BST bst = new BST(dat, 20);
 
         System.out.println("BSC/Hamming Code:");
         Receiver receiver = new Receiver("Hamming");
@@ -23,7 +23,7 @@ public class Main {
         bst.test(dat, receiver, 10000);
 
 
-        GilbertElliot gilbertElliot = new GilbertElliot(dat, 5, 10, 60);
+        GilbertElliot gilbertElliot = new GilbertElliot(dat, 10, 20, 40);
 
         System.out.println("Gilbert-Elliot/Hamming Code:");
         receiver.setTypeOfCode("Hamming");

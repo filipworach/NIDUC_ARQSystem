@@ -91,7 +91,7 @@ public class Receiver {
             divisor = divisor & 2147483647;
         }
         divisor = data & 4095;
-        return divisor == 0;
+        return divisor != 0;
     }
 
     private boolean parityBit() {
