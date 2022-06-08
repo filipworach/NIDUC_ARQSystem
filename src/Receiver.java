@@ -99,7 +99,7 @@ public class Receiver {
         for (int i = 0; i < message.length - 1; i++) {
             if (message[i] == '1') howManyOnes++;
         }
-        return (message[message.length - 1] == '0' && howManyOnes % 2 == 0) || (message[message.length - 1] == '1' && howManyOnes % 2 == 1);
+        return ((message[message.length - 1] == '0') && (howManyOnes % 2 == 0)) || ((message[message.length - 1] == '1') && (howManyOnes % 2 == 1));
     }
 
     public boolean decode() {
@@ -108,11 +108,11 @@ public class Receiver {
                 hamming();
                 return false;
             case "parityBit":
-                if (parityBit()) return true;
+                return parityBit();
             case "doubledData":
-                if(doubledData()) return true;
+                return doubledData();
             case "crc" :
-                if(crc()) return true;
+                return crc();
             default: return false;
         }
     }
