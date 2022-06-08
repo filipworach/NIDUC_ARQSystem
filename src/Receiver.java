@@ -66,14 +66,14 @@ public class Receiver {
         //return false;
     }
     private boolean crc() {
-        //message = new char[3];
         int pow, divisor, data;
         if(message[0]=='0'){
             data = Integer.parseInt(String.valueOf(this.message), 2);
         }else{
             message[0]='0';
             data = Integer.parseInt(String.valueOf(this.message), 2);
-            data = data & (1<<32);
+            data = data | (1<<32);
+
         }
         //data = finalData; //Integer.parseInt("1000100001000000100011101010110", 2);
         //System.out.println("final Data: " + Integer.toBinaryString(data));

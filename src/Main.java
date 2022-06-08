@@ -3,7 +3,7 @@ public class Main {
 
         char[] dat = new char[0];
 
-        BSC bst = new BSC(dat, 5);
+        BSC bst = new BSC(dat, 1);
         Receiver receiver = new Receiver("");
 
         System.out.println("BSC/CRC code:");

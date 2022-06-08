@@ -113,12 +113,17 @@ public class Channel {
         int crc = data & 255;
         int finalData = firstData | crc;
 
-        this.data = Integer.toBinaryString(finalData).toCharArray();
-        int length = this.data.length;
+        char[] temp = Integer.toBinaryString(finalData).toCharArray();
+        int length = temp.length;
         if (length < 32) {
-            this.data = Arrays.copyOf(this.getData(), 32);
-            for (int i = length; i < 32; i++) {
+            this.data = new char[32];
+            for (int i = 0; i < (32-length); i++) {
                 this.data[i] = '0';
+            }
+            int j=0;
+            for(int i = (32 -length); i<32; i++) {
+                this.data[i] = temp[j];
+                j++;
             }
         }
 
@@ -217,6 +222,7 @@ public class Channel {
                 else if (!error) howManyCorrectMessages++;
 
             } else if (Objects.equals(receiver.getTypeOfCode(), "crc")) {
+
                 dat = Integer.toBinaryString((int) Math.floor(Math.random() * 65535)).toCharArray();
                 this.setData(Arrays.copyOf(dat, dat.length));
                 this.generateCRCCode();
@@ -228,14 +234,12 @@ public class Channel {
                 detected = receiver.decode();
                 if (detected) {
                     howManyRetransmissionsInOneLoop = retransmit(HOW_MANY_RETRANSMISSIONS, receiver, dat);
-                    if (howManyRetransmissionsInOneLoop == 0)
-                        howManyRetransmissionsInOneLoop = HOW_MANY_RETRANSMISSIONS;
-                    else detected = false;
+                    if (howManyRetransmissionsInOneLoop != 0) detected = false;
                     howManyRetransmissions += howManyRetransmissionsInOneLoop;
                 }
                 if (error && !detected && !Arrays.equals(dat, receiver.getMessage())) howManyUndetectedErrors++;
-                else if (error && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
                 else if (error && Arrays.equals(dat, receiver.getMessage()) && !detected) howManyCorrectedMessages++;
+                else if (error && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
                 else if (!error) howManyCorrectMessages++;
 
 
