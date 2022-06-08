@@ -144,7 +144,6 @@ public class Channel {
             this.setData(Arrays.copyOf(dat, dat.length));
             this.generateError();
             receiver.setMessage(Arrays.copyOf(data, data.length));
-            char temp[] = new char[dat.length];
             if (!receiver.decode()) {
                 howManyTimes++;
                 return howManyTimes;
@@ -172,37 +171,30 @@ public class Channel {
                 dat = Arrays.copyOf(this.getData(), 31);
                 this.generateError();
                 receiver.setMessage(Arrays.copyOf(this.getData(), 31));
-                error = this.isErrorGenerated;
-                detected = receiver.decode();
-                if (detected) {
-                    howManyRetransmissionsInOneLoop = retransmit(5, receiver, dat);
-                    howManyRetransmissions += howManyRetransmissionsInOneLoop;
-                    if(howManyRetransmissionsInOneLoop == 0) detected = true;
-                    else detected = false;
-                }
+                receiver.decode();
 
-                if(this.isErrorGenerated && !detected) howManyUndetectedErrors++;
-                else if (error && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
-                else if (error && Arrays.equals(dat, receiver.getMessage()) && detected) howManyCorrectedMessages++;
-                else if (!error) howManyCorrectMessages++;
+                if (this.isErrorGenerated && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
+                else if (this.isErrorGenerated && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
+                else if (!this.isErrorGenerated) howManyCorrectMessages++;
             } else if (Objects.equals(receiver.getTypeOfCode(), "parityBit")) {
 
                 dat = Integer.toBinaryString((int) Math.floor(Math.random() * 2147483647)).toCharArray();
                 dat = Calculator.writeOnChosenPositions(dat, 31);
-                this.setData(dat);
+                this.setData(Arrays.copyOf(dat, dat.length));
                 this.generateParityBit();
                 dat = Arrays.copyOf(this.getData(), 32);
                 this.generateError();
                 receiver.setMessage(Arrays.copyOf(this.getData(), 32));
                 error = this.isErrorGenerated;
-                error = this.isErrorGenerated;
-                if (receiver.decode()) {
+                detected = receiver.decode();
+                if (detected) {
                     howManyRetransmissionsInOneLoop = retransmit(HOW_MANY_RETRANSMISSIONS, receiver, dat);
-                    if(howManyRetransmissionsInOneLoop == 0) howManyRetransmissionsInOneLoop = HOW_MANY_RETRANSMISSIONS;
+                    if(howManyRetransmissionsInOneLoop != 0) detected = false;
                     howManyRetransmissions += howManyRetransmissionsInOneLoop;
                 }
-                if (error && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
+                if(error && !detected && !Arrays.equals(dat, receiver.getMessage())) howManyUndetectedErrors++;
                 else if (error && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
+                else if (error && Arrays.equals(dat, receiver.getMessage()) && !detected) howManyCorrectedMessages++;
                 else if (!error) howManyCorrectMessages++;
 
             } else if (Objects.equals(receiver.getTypeOfCode(), "doubledData")) {
@@ -214,13 +206,16 @@ public class Channel {
                 this.generateError();
                 receiver.setMessage(Arrays.copyOf(this.getData(), 32));
                 error = this.isErrorGenerated;
-                if (receiver.decode()) {
+                detected = receiver.decode();
+                if (detected) {
                     howManyRetransmissionsInOneLoop = retransmit(HOW_MANY_RETRANSMISSIONS, receiver, dat);
                     if(howManyRetransmissionsInOneLoop == 0) howManyRetransmissionsInOneLoop = HOW_MANY_RETRANSMISSIONS;
+                    else detected = false;
                     howManyRetransmissions += howManyRetransmissionsInOneLoop;
                 }
-                if (error && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
+                if(error && !detected && !Arrays.equals(dat, receiver.getMessage())) howManyUndetectedErrors++;
                 else if (error && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
+                else if (error && Arrays.equals(dat, receiver.getMessage()) && !detected) howManyCorrectedMessages++;
                 else if (!error) howManyCorrectMessages++;
 
             } else if (Objects.equals(receiver.getTypeOfCode(), "crc")) {
@@ -236,11 +231,12 @@ public class Channel {
                 if (detected) {
                     howManyRetransmissionsInOneLoop = retransmit(HOW_MANY_RETRANSMISSIONS, receiver, dat);
                     if(howManyRetransmissionsInOneLoop == 0) howManyRetransmissionsInOneLoop = HOW_MANY_RETRANSMISSIONS;
+                    else detected = false;
                     howManyRetransmissions += howManyRetransmissionsInOneLoop;
                 }
-                if(this.isErrorGenerated && !detected) howManyUndetectedErrors++;
+                if(error && !detected && !Arrays.equals(dat, receiver.getMessage())) howManyUndetectedErrors++;
                 else if (error && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
-                else if (error && Arrays.equals(dat, receiver.getMessage()) && detected) howManyCorrectedMessages++;
+                else if (error && Arrays.equals(dat, receiver.getMessage()) && !detected) howManyCorrectedMessages++;
                 else if (!error) howManyCorrectMessages++;
 
 
@@ -249,8 +245,10 @@ public class Channel {
         System.out.println("Corrected: " + howManyCorrectedMessages);
         System.out.println("Wrong:" + howManyWrongMessages);
         System.out.println("Correct: " + howManyCorrectMessages);
-        System.out.println("Undetected: " + howManyUndetectedErrors);
-        if (!Objects.equals(receiver.getTypeOfCode(), "Hamming")) System.out.println("How many retransmissions needed to get correct message: " + howManyRetransmissions * 1.0/(howManyCorrectedMessages + howManyWrongMessages));
+        if (!Objects.equals(receiver.getTypeOfCode(), "Hamming")) {
+            System.out.println("Undetected: " + howManyUndetectedErrors);
+            System.out.println("How many retransmissions needed to get correct message: " + howManyRetransmissions * 1.0 / (howManyCorrectedMessages));
+        }
         System.out.println();
     }
 
