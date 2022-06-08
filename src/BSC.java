@@ -1,6 +1,6 @@
 import java.util.Random;
 
-public class BST extends Channel{
+public class BSC extends Channel{
     public void generateError() {
         isErrorGenerated = false;
         for (int i = 0; i < data.length; i++) {
@@ -22,7 +22,7 @@ public class BST extends Channel{
         return errorProb >= rand;
     }
 
-    public BST(char[] data, int errorProb) {
+    public BSC(char[] data, int errorProb) {
         super(data, errorProb);
     }
 

@@ -115,9 +115,9 @@ public class Channel {
 
         this.data = Integer.toBinaryString(finalData).toCharArray();
         int length = this.data.length;
-        if(length<32){
+        if (length < 32) {
             this.data = Arrays.copyOf(this.getData(), 32);
-            for(int i =length; i<32 ;i++){
+            for (int i = length; i < 32; i++) {
                 this.data[i] = '0';
             }
         }
@@ -147,8 +147,7 @@ public class Channel {
             if (!receiver.decode()) {
                 howManyTimes++;
                 return howManyTimes;
-            }
-            else howManyTimes++;
+            } else howManyTimes++;
         }
         return 0;
     }
@@ -163,6 +162,7 @@ public class Channel {
         boolean detected;
         boolean error;
         for (int i = 0; i < howManyIterations; i++) {
+            isErrorGenerated = false;
             if (Objects.equals(receiver.getTypeOfCode(), "Hamming")) {
                 dat = Integer.toBinaryString((int) Math.floor(Math.random() * 67108864)).toCharArray();
                 dat = Calculator.writeOnChosenPositions(dat, 26);
@@ -177,7 +177,6 @@ public class Channel {
                 else if (this.isErrorGenerated && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
                 else if (!this.isErrorGenerated) howManyCorrectMessages++;
             } else if (Objects.equals(receiver.getTypeOfCode(), "parityBit")) {
-
                 dat = Integer.toBinaryString((int) Math.floor(Math.random() * 2147483647)).toCharArray();
                 dat = Calculator.writeOnChosenPositions(dat, 31);
                 this.setData(Arrays.copyOf(dat, dat.length));
@@ -189,12 +188,12 @@ public class Channel {
                 detected = receiver.decode();
                 if (detected) {
                     howManyRetransmissionsInOneLoop = retransmit(HOW_MANY_RETRANSMISSIONS, receiver, dat);
-                    if(howManyRetransmissionsInOneLoop != 0) detected = false;
+                    if (howManyRetransmissionsInOneLoop != 0) detected = false;
                     howManyRetransmissions += howManyRetransmissionsInOneLoop;
                 }
-                if(error && !detected && !Arrays.equals(dat, receiver.getMessage())) howManyUndetectedErrors++;
-                else if (error && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
+                if (error && !detected && !Arrays.equals(dat, receiver.getMessage())) howManyUndetectedErrors++;
                 else if (error && Arrays.equals(dat, receiver.getMessage()) && !detected) howManyCorrectedMessages++;
+                else if (error && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
                 else if (!error) howManyCorrectMessages++;
 
             } else if (Objects.equals(receiver.getTypeOfCode(), "doubledData")) {
@@ -209,13 +208,12 @@ public class Channel {
                 detected = receiver.decode();
                 if (detected) {
                     howManyRetransmissionsInOneLoop = retransmit(HOW_MANY_RETRANSMISSIONS, receiver, dat);
-                    if(howManyRetransmissionsInOneLoop == 0) howManyRetransmissionsInOneLoop = HOW_MANY_RETRANSMISSIONS;
-                    else detected = false;
+                    if (howManyRetransmissionsInOneLoop != 0) detected = false;
                     howManyRetransmissions += howManyRetransmissionsInOneLoop;
                 }
-                if(error && !detected && !Arrays.equals(dat, receiver.getMessage())) howManyUndetectedErrors++;
-                else if (error && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
+                if (error && !detected && !Arrays.equals(dat, receiver.getMessage())) howManyUndetectedErrors++;
                 else if (error && Arrays.equals(dat, receiver.getMessage()) && !detected) howManyCorrectedMessages++;
+                else if (error && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
                 else if (!error) howManyCorrectMessages++;
 
             } else if (Objects.equals(receiver.getTypeOfCode(), "crc")) {
@@ -230,11 +228,12 @@ public class Channel {
                 detected = receiver.decode();
                 if (detected) {
                     howManyRetransmissionsInOneLoop = retransmit(HOW_MANY_RETRANSMISSIONS, receiver, dat);
-                    if(howManyRetransmissionsInOneLoop == 0) howManyRetransmissionsInOneLoop = HOW_MANY_RETRANSMISSIONS;
+                    if (howManyRetransmissionsInOneLoop == 0)
+                        howManyRetransmissionsInOneLoop = HOW_MANY_RETRANSMISSIONS;
                     else detected = false;
                     howManyRetransmissions += howManyRetransmissionsInOneLoop;
                 }
-                if(error && !detected && !Arrays.equals(dat, receiver.getMessage())) howManyUndetectedErrors++;
+                if (error && !detected && !Arrays.equals(dat, receiver.getMessage())) howManyUndetectedErrors++;
                 else if (error && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
                 else if (error && Arrays.equals(dat, receiver.getMessage()) && !detected) howManyCorrectedMessages++;
                 else if (!error) howManyCorrectMessages++;
@@ -247,7 +246,10 @@ public class Channel {
         System.out.println("Correct: " + howManyCorrectMessages);
         if (!Objects.equals(receiver.getTypeOfCode(), "Hamming")) {
             System.out.println("Undetected: " + howManyUndetectedErrors);
-            System.out.println("How many retransmissions needed to get correct message: " + howManyRetransmissions * 1.0 / (howManyCorrectedMessages));
+            int temp = (int) Math.round(howManyRetransmissions * 1.0 / howManyCorrectedMessages);
+            if (temp > 5) temp = 5;
+            else if (temp == 0 && howManyCorrectedMessages != 0) temp = 1;
+            System.out.println("How many retransmissions needed to get correct message: " + temp);
         }
         System.out.println();
     }

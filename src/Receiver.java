@@ -90,7 +90,7 @@ public class Receiver {
             divisor = divisor >> 1;
             divisor = divisor & 2147483647;
         }
-        divisor = data & 4095;
+        divisor = data & 255; //& 4095 -> 255
         return divisor != 0;
     }
 
@@ -119,7 +119,7 @@ public class Receiver {
 
     private boolean doubledData() {
         for (int i = 0; i < message.length - 1; i+=2) {
-            return !Objects.equals(message[i], message[i + 1]);
+            if(message[i] != message[i+1]) return true;
         }
         return false;
     }
