@@ -157,7 +157,8 @@ public class Channel {
         int howManyWrongMessages = 0;
         int howManyCorrectMessages = 0;
         int howManyRetransmissions = 0;
-        int howManyRetransmissionsInOneLoop = 0;
+        int howManyRetransmissionsInOneLoop;
+        int howManyUndetectedErrors = 0;
         int divider = 0;
         for (int i = 0; i < howManyIterations; i++) {
             if (Objects.equals(receiver.getTypeOfCode(), "Hamming")) {
@@ -182,13 +183,18 @@ public class Channel {
                 this.generateError();
                 receiver.setMessage(Arrays.copyOf(this.getData(), 31));
                 boolean error = this.isErrorGenerated;
-                if (receiver.decode()) {
+                boolean detected = receiver.decode();
+                if (detected) {
                     howManyRetransmissionsInOneLoop = retransmit(5, receiver, dat);
                     howManyRetransmissions += howManyRetransmissionsInOneLoop;
                     if(howManyRetransmissionsInOneLoop != 0)divider++;
+                    if(howManyRetransmissionsInOneLoop == 0) detected = true;
+                    else detected = false;
                 }
-                if (error && Arrays.equals(dat, receiver.getMessage())) howManyCorrectedMessages++;
+
+                if(this.isErrorGenerated && !detected) howManyUndetectedErrors++;
                 else if (error && !Arrays.equals(dat, receiver.getMessage())) howManyWrongMessages++;
+                else if (error && Arrays.equals(dat, receiver.getMessage()) && detected) howManyCorrectedMessages++;
                 else if (!error) howManyCorrectMessages++;
 
             } else if (Objects.equals(receiver.getTypeOfCode(), "doubledData")) {
@@ -233,6 +239,7 @@ public class Channel {
         System.out.println("Corrected: " + howManyCorrectedMessages);
         System.out.println("Wrong:" + howManyWrongMessages);
         System.out.println("Correct: " + howManyCorrectMessages);
+        System.out.println("Undetected: " + howManyUndetectedErrors);
         if (!Objects.equals(receiver.getTypeOfCode(), "Hamming")) System.out.println("How many retransmissions needed to get correct message: " + howManyRetransmissions * 1.0/divider);
         System.out.println();
     }
